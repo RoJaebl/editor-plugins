@@ -1,0 +1,15 @@
+{
+  "server": {
+    "package": "typescript-language-server",
+    "entry": "lib/cli.mjs",
+    "out": "server/tsls.js",
+    "licenses": ["LICENSE"]
+  },
+  "notices": ["THIRD-PARTY-NOTICES.txt"],
+  "engines": {
+    "typescript": [
+      { "version": "5.9.3", "package": "typescript-5.9.3" },
+      { "version": "5.4.5", "package": "typescript-5.4.5" }
+    ]
+  }
+}
