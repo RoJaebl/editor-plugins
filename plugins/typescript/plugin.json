@@ -1,0 +1,48 @@
+{
+  "id": "editor.typescript",
+  "name": "TypeScript · JavaScript",
+  "version": "1.0.0",
+  "publisher": "RoJaebl",
+  "description": "TypeScript · JavaScript 파일의 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. typescript-language-server 를 앱의 Node 로 돌리고, 검사는 작업 폴더의 TypeScript 를 먼저 쓴다.",
+  "engines": { "editor": ">=1.0.0" },
+  "platform": "any",
+  "contributes": {
+    "languageServers": [
+      {
+        "id": "tsls",
+        "languages": ["typescript", "tsx", "javascript", "jsx"],
+        "command": { "runtime": "node", "args": ["server/tsls.js", "--stdio"] },
+        "initializationOptions": {
+          "tsserver": { "path": "${engine:typescript}/lib/tsserver.js" },
+          "disableAutomaticTypingAcquisition": true,
+          "hostInfo": "editor"
+        },
+        "settings": {
+          "defaults": {
+            "typescript": { "format": { "semicolons": "ignore", "insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true } },
+            "javascript": { "format": { "semicolons": "ignore", "insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true } },
+            "completions": { "completeFunctionCalls": false }
+          },
+          "allow": [
+            "typescript.format",
+            "javascript.format",
+            "typescript.inlayHints",
+            "javascript.inlayHints",
+            "formattingOptions",
+            "completions.completeFunctionCalls"
+          ]
+        }
+      }
+    ]
+  },
+  "engineKinds": {
+    "typescript": {
+      "default": "5.9.3",
+      "workspace": {
+        "probe": "node_modules/typescript/lib/tsserver.js",
+        "root": "node_modules/typescript",
+        "minVersion": "4.9.0"
+      }
+    }
+  }
+}

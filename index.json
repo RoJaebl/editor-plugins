@@ -1,0 +1,39 @@
+{
+  "plugins": [
+    {
+      "id": "editor.typescript",
+      "name": "TypeScript · JavaScript",
+      "description": "TypeScript · JavaScript 파일의 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. typescript-language-server 를 앱의 Node 로 돌리고, 검사는 작업 폴더의 TypeScript 를 먼저 쓴다.",
+      "publisher": "RoJaebl",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "engines": ">=1.0.0",
+          "assets": {
+            "any": {
+              "url": "https://raw.githubusercontent.com/RoJaebl/editor-plugins/main/dist/editor.typescript-1.0.0-any.zip",
+              "sha256": "fdc8baa6e515645edb9c0e1e50a24a5d35758b25e383d20502ce20060b6b4a1d",
+              "size": 167951
+            }
+          }
+        }
+      ],
+      "engineKinds": {
+        "typescript": [
+          {
+            "version": "5.9.3",
+            "url": "https://raw.githubusercontent.com/RoJaebl/editor-plugins/main/dist/editor.typescript-engine-typescript-5.9.3.zip",
+            "sha256": "9e96e0c2ab9ca9cfd9dee35cb6b030f8f465d7cb501b7e09f538a3e54dda70df",
+            "size": 4454676
+          },
+          {
+            "version": "5.4.5",
+            "url": "https://raw.githubusercontent.com/RoJaebl/editor-plugins/main/dist/editor.typescript-engine-typescript-5.4.5.zip",
+            "sha256": "cec3aab992ca83f8e4995fd0a397bf47a1b34358b49541004148b127bdf5c6aa",
+            "size": 5891291
+          }
+        ]
+      }
+    }
+  ]
+}
