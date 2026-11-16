@@ -7,7 +7,7 @@
 크기와 sha256 으로 검증된 뒤에야 설치된다. 플러그인의 모양과 설치 규칙은 앱 저장소의 설계 문서
 `docs/superpowers/specs/2026-10-07-plugins-lsp-design.md`(§2 · §3 · §5 · §6.4)가 소유한다.
 
-지금 든 플러그인은 하나다.
+지금 든 플러그인은 둘이다.
 
 | id | 이름 | 하는 일 |
 |---|---|---|
@@ -26,6 +26,10 @@ plugins/
     plugin.json                    설명서 — 묶음 뿌리에 그대로 들어간다
     catalog.json                   짓기 설정 — 언어 서버 패키지 · 엔진 판 목록(첫 줄이 기본 판)
     THIRD-PARTY-NOTICES.txt        묶은 언어 서버 안에 든 남의 패키지 라이선스
+  rust/
+    plugin.json                    설명서 — platform 이 win32-x64 다
+    catalog.json                   짓기 설정 — rust-analyzer 배포본의 주소 · sha256 · 꺼낼 항목
+    LICENSE-MIT · LICENSE-APACHE   rust-analyzer 의 라이선스(그 판의 태그에서 가져왔다)
 scripts/build.mjs                  짓기 스크립트
 package.json · package-lock.json   짓기에 쓰는 판을 정확히 고정한다
 ```
@@ -78,7 +82,17 @@ node scripts/build.mjs --skip-install  # node_modules 가 이미 lockfile 대로
 3. 묶은 패키지 목록이 바뀌었으면 `THIRD-PARTY-NOTICES.txt` 를 고친다.
 4. 다시 짓는다. 언어 서버가 런타임에 `../package.json` 을 읽는 자리를 짓기가 판 글자로 바꿔 넣는데, 그 자리를 못 찾으면 멈춘다.
 
+**rust-analyzer 판을 올린다**
+
+1. `plugins/rust/catalog.json` 의 `server.release` 에 새 판의 태그 · zip 주소 · sha256 을 적는다. sha256 은
+   `gh release view <태그> -R rust-lang/rust-analyzer --json assets` 의 `digest` 로 확인한다. 받은 zip 이 이 값과 다르면 짓기가 멈춘다.
+2. `plugin.json` 의 `version` 을 올린다.
+3. 그 태그의 `LICENSE-MIT` · `LICENSE-APACHE` 가 바뀌었으면 `plugins/rust/` 의 사본을 바꾼다.
+4. 다시 짓는다.
+
 **새 플러그인을 더한다** — `plugins/<이름>/` 에 `plugin.json` 과 `catalog.json` 을 두면 짓기가 함께 묶어 `index.json` 에 올린다.
+언어 서버는 둘 가운데 하나로 얻는다. `server.package` 는 npm 패키지를 esbuild 로 묶고, `server.release` 는 배포본 zip 을 받아 sha256 을
+맞춰 본 뒤 `entry` 항목 하나를 `out` 자리에 꺼낸다. 엔진이 없으면 `engines` 를 비운다.
 
 ## 설정
 
@@ -96,5 +110,6 @@ node scripts/build.mjs --skip-install  # node_modules 가 이미 lockfile 대로
 | typescript-language-server 5.3.0 | Apache-2.0(microsoft/vscode 에서 가져온 부분은 MIT) | 플러그인 묶음 `server/LICENSE` |
 | 그 안에 이미 묶여 있던 패키지(commander · vscode-languageserver · semver …) | MIT · ISC · BlueOak-1.0.0 | 플러그인 묶음 `server/THIRD-PARTY-NOTICES.txt` |
 | TypeScript 5.9.3 · 5.4.5 | Apache-2.0 | 엔진 묶음 `LICENSE.txt` · `ThirdPartyNoticeText.txt` |
+| rust-analyzer 2026-11-02 | MIT 또는 Apache-2.0 | 플러그인 묶음 `server/LICENSE-MIT` · `server/LICENSE-APACHE` |
 
 짓기 도구(esbuild, MIT)는 묶음에 들어가지 않는다.

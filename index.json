@@ -1,6 +1,26 @@
 {
   "plugins": [
     {
+      "id": "editor.rust",
+      "name": "Rust",
+      "description": "Rust 파일의 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. 묶음 안의 rust-analyzer 를 돌린다. 검사에는 이 기기에 설치된 Rust 툴체인(cargo · rustc)이 필요하다.",
+      "publisher": "RoJaebl",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "engines": ">=1.0.0",
+          "assets": {
+            "win32-x64": {
+              "url": "https://raw.githubusercontent.com/RoJaebl/editor-plugins/main/dist/editor.rust-1.0.0-win32-x64.zip",
+              "sha256": "12eecc9214f49a49ffc99cb0ea37d9bc95d7a7fbc190c076e62bb8d172eba435",
+              "size": 15103847
+            }
+          }
+        }
+      ],
+      "engineKinds": {}
+    },
+    {
       "id": "editor.typescript",
       "name": "TypeScript · JavaScript",
       "description": "TypeScript · JavaScript 파일의 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. typescript-language-server 를 앱의 Node 로 돌리고, 검사는 작업 폴더의 TypeScript 를 먼저 쓴다.",
