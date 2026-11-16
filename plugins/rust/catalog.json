@@ -1,0 +1,13 @@
+{
+  "server": {
+    "release": {
+      "version": "2026-11-02",
+      "url": "https://github.com/rust-lang/rust-analyzer/releases/download/2026-11-02/rust-analyzer-x86_64-pc-windows-msvc.zip",
+      "sha256": "5450a3735c601f047dc9ca46a01add55c4ac7ef450ae5e710d249a26d65f5632",
+      "entry": "rust-analyzer.exe"
+    },
+    "out": "server/rust-analyzer.exe"
+  },
+  "notices": ["LICENSE-MIT", "LICENSE-APACHE"],
+  "engines": {}
+}
