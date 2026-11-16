@@ -3,7 +3,8 @@
  * 공식 목록 짓기 — `node scripts/build.mjs`
  *
  * 1. `npm ci` 로 package-lock.json 에 박힌 판 그대로 받는다(`--skip-install` 이면 건너뛴다).
- * 2. 플러그인마다(`plugins/<이름>/`) 언어 서버를 esbuild 로 파일 하나로 묶고, plugin.json · 라이선스와 함께 묶음 zip 을 짓는다.
+ * 2. 플러그인마다(`plugins/<이름>/`) 언어 서버를 esbuild 로 파일 하나로 묶고(`server.package`), 또는 배포본 zip 을 받아 sha256 을 맞춰 보고
+ *    실행 파일 하나를 꺼낸다(`server.release`). plugin.json · 라이선스와 함께 묶음 zip 을 짓는다.
  * 3. 엔진 판마다 패키지 폴더를 그대로 zip 뿌리에 담는다 — 앱이 이 zip 을 `engines/<종류>/<판>/` 에 바로 풀기 때문이다.
  * 4. `dist/*.zip` 과 뿌리의 `index.json`(url · sha256 · size)을 쓴다.
  *
@@ -15,7 +16,7 @@ import { createHash } from 'node:crypto'
 import { lstat, mkdir, readdir, readFile, rm, writeFile, copyFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { deflateRawSync } from 'node:zlib'
+import { deflateRawSync, inflateRawSync } from 'node:zlib'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const BUILD = path.join(ROOT, '.build')
@@ -204,6 +205,43 @@ async function bundleServer(pluginDir, cfg, outDir) {
   return pkg.version
 }
 
+/** 받은 배포본 zip 에서 항목 하나를 꺼낸다 — 중앙 목록을 읽어 stored · deflate 만 푼다. */
+function readZipEntry(zip, want) {
+  let eocd = zip.length - 22
+  while (eocd >= 0 && zip.readUInt32LE(eocd) !== 0x06054b50) eocd--
+  if (eocd < 0) die('배포본이 zip 이 아닙니다')
+  let at = zip.readUInt32LE(eocd + 16)
+  for (let i = zip.readUInt16LE(eocd + 10); i > 0; i--) {
+    if (zip.readUInt32LE(at) !== 0x02014b50) die('배포본 zip 의 중앙 목록이 깨졌습니다')
+    const method = zip.readUInt16LE(at + 10)
+    const compressed = zip.readUInt32LE(at + 20)
+    const nameLen = zip.readUInt16LE(at + 28)
+    const name = zip.toString('utf8', at + 46, at + 46 + nameLen)
+    const local = zip.readUInt32LE(at + 42)
+    if (name === want) {
+      const start = local + 30 + zip.readUInt16LE(local + 26) + zip.readUInt16LE(local + 28)
+      const body = zip.subarray(start, start + compressed)
+      if (method === 0) return Buffer.from(body)
+      if (method === 8) return inflateRawSync(body)
+      die(`배포본 zip 의 압축 방식(${method})을 풀지 못합니다`)
+    }
+    at += 46 + nameLen + zip.readUInt16LE(at + 30) + zip.readUInt16LE(at + 32)
+  }
+  die(`배포본 zip 에 ${want} 이 없습니다`)
+}
+
+/** 배포본(예: rust-analyzer 의 GitHub Release zip)을 받아 sha256 을 맞춰 보고 실행 파일 하나를 묶음 자리에 쓴다. */
+async function fetchReleaseServer(cfg, outDir) {
+  const { version, url, sha256: want, entry } = cfg.server.release
+  log(`받기 ${url}`)
+  const res = await fetch(url)
+  if (!res.ok) die(`배포본을 받지 못했습니다(${res.status}): ${url}`)
+  const zip = Buffer.from(await res.arrayBuffer())
+  if (sha256(zip) !== want) die(`배포본의 sha256 이 catalog.json 과 다릅니다: ${url}`)
+  await writeFile(path.join(outDir, ...cfg.server.out.split('/')), readZipEntry(zip, entry), { mode: 0o755 })
+  return version
+}
+
 async function buildPlugin(name) {
   const pluginDir = path.join(PLUGINS, name)
   const manifest = await readJson(path.join(pluginDir, 'plugin.json'))
@@ -212,10 +250,10 @@ async function buildPlugin(name) {
   await rm(stage, { recursive: true, force: true })
   await mkdir(path.join(stage, 'server'), { recursive: true })
 
-  const serverVersion = await bundleServer(pluginDir, cfg, stage)
+  const serverVersion = cfg.server.release ? await fetchReleaseServer(cfg, stage) : await bundleServer(pluginDir, cfg, stage)
   for (const n of cfg.notices) await copyFile(path.join(pluginDir, n), path.join(stage, 'server', n))
   await writeFile(path.join(stage, 'plugin.json'), `${JSON.stringify(manifest, null, 2)}\n`)
-  log(`${manifest.id}: 언어 서버 ${cfg.server.package} ${serverVersion} 묶음`)
+  log(`${manifest.id}: 언어 서버 ${cfg.server.package ?? cfg.server.out} ${serverVersion} 묶음`)
 
   const assets = []
   const files = await collect(stage)
@@ -223,7 +261,7 @@ async function buildPlugin(name) {
   assets.push({ file: pluginFile, zip: makeZip(files), unpacked: checkLimits(pluginFile, files), entries: files.length })
 
   const engineKinds = {}
-  for (const [kind, list] of Object.entries(cfg.engines)) {
+  for (const [kind, list] of Object.entries(cfg.engines ?? {})) {
     const decl = manifest.engineKinds?.[kind]
     if (!decl) die(`${manifest.id}: plugin.json 에 선언하지 않은 엔진 종류입니다: ${kind}`)
     if (decl.default && list[0]?.version !== decl.default) die(`${manifest.id}: ${kind} 의 첫 판(${list[0]?.version})이 plugin.json 의 기본 판(${decl.default})과 다릅니다`)
