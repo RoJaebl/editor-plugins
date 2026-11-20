@@ -7,13 +7,13 @@
       "publisher": "RoJaebl",
       "versions": [
         {
-          "version": "1.0.0",
-          "engines": ">=1.0.0",
+          "version": "1.0.1",
+          "engines": ">=1.1.0",
           "assets": {
             "win32-x64": {
-              "url": "https://raw.githubusercontent.com/RoJaebl/editor-plugins/main/dist/editor.rust-1.0.0-win32-x64.zip",
-              "sha256": "12eecc9214f49a49ffc99cb0ea37d9bc95d7a7fbc190c076e62bb8d172eba435",
-              "size": 15103847
+              "url": "https://raw.githubusercontent.com/RoJaebl/editor-plugins/main/dist/editor.rust-1.0.1-win32-x64.zip",
+              "sha256": "109d0dac4042c2b985d503994f35d4d87a25fada9710bed5148856559c80d48e",
+              "size": 15103877
             }
           }
         }

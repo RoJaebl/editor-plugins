@@ -12,6 +12,7 @@
 | id | 이름 | 하는 일 |
 |---|---|---|
 | `editor.typescript` | TypeScript · JavaScript | `typescript-language-server` 를 앱의 Node 로 돌린다. 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. 검사 엔진(tsserver)은 신뢰한 작업 폴더의 `node_modules/typescript` 를 먼저 쓰고, 없으면 플러그인이 받아 둔 판(5.9.3 기본 · 5.4.5)을 쓴다 |
+| `editor.rust` | Rust | 묶음 안의 `rust-analyzer`(win32-x64)를 돌린다. 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. 연 파일에서 위로 `Cargo.toml` 을 찾아 그 폴더를 작업 폴더로 더하므로, 저장소 안 하위 폴더의 Cargo 프로젝트도 잡는다(앱 틀 1.1.0 이상). 검사에는 이 기기의 Rust 툴체인이 필요하다 |
 
 ## 자리
 
