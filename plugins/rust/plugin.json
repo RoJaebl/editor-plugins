@@ -1,16 +1,17 @@
 {
   "id": "editor.rust",
   "name": "Rust",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "RoJaebl",
   "description": "Rust 파일의 진단 · 설명 · 자동완성 · 정의로 가기 · 참조 찾기. 묶음 안의 rust-analyzer 를 돌린다. 검사에는 이 기기에 설치된 Rust 툴체인(cargo · rustc)이 필요하다.",
-  "engines": { "editor": ">=1.0.0" },
+  "engines": { "editor": ">=1.1.0" },
   "platform": "win32-x64",
   "contributes": {
     "languageServers": [
       {
         "id": "rust-analyzer",
         "languages": ["rust"],
+        "rootMarkers": ["Cargo.toml"],
         "command": { "file": "server/rust-analyzer.exe", "args": [] }
       }
     ]
